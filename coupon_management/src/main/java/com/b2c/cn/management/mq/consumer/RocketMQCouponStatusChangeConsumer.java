@@ -39,6 +39,7 @@ public class RocketMQCouponStatusChangeConsumer implements RocketMQListener<Mess
         message.setStatus(CouponTemplateStatusEnum.ENDING.getValue());
         message.setUpdateTime(new Date());
         couponTemplateMapper.update(message, Wrappers.lambdaUpdate(CouponTemplateDO.class)
+                .eq(CouponTemplateDO::getShopNumber, message.getShopNumber())
                 .eq(CouponTemplateDO::getId, message.getId()));
         log.info("RocketMQCouponStatusChangeConsumer消费消息成功---->：{}", message);
     }

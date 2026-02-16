@@ -38,7 +38,7 @@ rules:
         actualDataNodes: ds_${0..1}.t_coupon_template_0
         databaseStrategy:
           standard:
-            shardingColumn: id
+            shardingColumn: shop_number
             shardingAlgorithmName: coupon_template_database_mod
     shardingAlgorithms:
       coupon_template_database_mod:
@@ -47,7 +47,5 @@ rules:
           algorithmClassName: com.b2c.cn.management.dao.sharding.DBHashModShardingAlgorithm
           sharding-count: 2
           strategy: standard
-mode:
-  type: Memory
 props:
   sql-show: true

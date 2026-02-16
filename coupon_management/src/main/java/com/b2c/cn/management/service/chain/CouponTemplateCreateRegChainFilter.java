@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author zrq
@@ -22,6 +23,10 @@ public class CouponTemplateCreateRegChainFilter implements ChainFilterAbstractDe
     public void handler(CouponTemplateReqDTO requestParam) {
         if (requestParam.getName().isEmpty()) {
             throw new ClientException("优惠券名称不合规");
+        } else if (Objects.isNull(requestParam.getShopNumber())) {
+            throw new ClientException("优惠券店铺编号不合规");
+        } else if (requestParam.getSource() != 0 && requestParam.getSource() != 1) {
+            throw new ClientException("优惠券来源不合规");
         } else if (requestParam.getTarget().equals(0) && requestParam.getGoods().isEmpty()) {
             throw new ClientException("优惠券商品编码不合规");
         } else if (!JSON.isValid(requestParam.getReceiveRule())) {

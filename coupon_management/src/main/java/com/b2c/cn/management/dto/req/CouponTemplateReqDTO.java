@@ -17,7 +17,17 @@ public class CouponTemplateReqDTO {
     private String name;
 
     /**
-     * 优惠对象 0：商品专属 1：全店通用
+     * 店铺编号
+     */
+    private Long shopNumber;
+
+    /**
+     * 优惠券来源 0：店铺券 1：平台券
+     */
+    private Integer source;
+
+    /**
+     * 优惠对象 0：商品专属 1：店铺通用
      */
     private Integer target;
 
