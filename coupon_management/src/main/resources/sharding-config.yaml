@@ -1,0 +1,53 @@
+dataSources:
+  ds_0:
+    dataSourceClassName: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/b2c_coupon_0?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: zrq123
+
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    validationQuery: SELECT 1
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+
+  ds_1:
+    dataSourceClassName: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/b2c_coupon_1?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: zrq123
+
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    validationQuery: SELECT 1
+    testWhileIdle: true
+
+rules:
+  - !SHARDING
+    tables:
+      t_coupon_template:
+        actualDataNodes: ds_${0..1}.t_coupon_template_0
+        databaseStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: coupon_template_database_mod
+    shardingAlgorithms:
+      coupon_template_database_mod:
+        type: CLASS_BASED
+        props:
+          algorithmClassName: com.b2c.cn.management.dao.sharding.DBHashModShardingAlgorithm
+          sharding-count: 2
+          strategy: standard
+mode:
+  type: Memory
+props:
+  sql-show: true
