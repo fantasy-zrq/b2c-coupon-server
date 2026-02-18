@@ -34,18 +34,84 @@ dataSources:
 rules:
   - !SHARDING
     tables:
+      # ===== 优惠券模板表 =====
+      # 2库 x 每库1张表 = 全局2个槽位
+      # ds_0 -> t_coupon_template_0, ds_1 -> t_coupon_template_1
       t_coupon_template:
-        actualDataNodes: ds_${0..1}.t_coupon_template_0
+        actualDataNodes: ds_0.t_coupon_template_0,ds_1.t_coupon_template_1
         databaseStrategy:
           standard:
             shardingColumn: shop_number
-            shardingAlgorithmName: coupon_template_database_mod
+            shardingAlgorithmName: db_hash_mod_1t
+        tableStrategy:
+          standard:
+            shardingColumn: shop_number
+            shardingAlgorithmName: table_hash_mod_1t
+
+      # ===== 优惠券模板操作日志表 =====
+      # 2库 x 每库2张表 = 全局4个槽位
+      # ds_0 -> t_coupon_template_log_0, t_coupon_template_log_1
+      # ds_1 -> t_coupon_template_log_2, t_coupon_template_log_3
+      t_coupon_template_log:
+        actualDataNodes: ds_0.t_coupon_template_log_${0..1},ds_1.t_coupon_template_log_${2..3}
+        databaseStrategy:
+          standard:
+            shardingColumn: shop_number
+            shardingAlgorithmName: db_hash_mod_2t
+        tableStrategy:
+          standard:
+            shardingColumn: shop_number
+            shardingAlgorithmName: table_hash_mod_2t
+
     shardingAlgorithms:
-      coupon_template_database_mod:
+      # ---------- 库路由算法（按每库表数量区分） ----------
+      # 每库1张表的库路由
+      db_hash_mod_1t:
         type: CLASS_BASED
         props:
           algorithmClassName: com.b2c.cn.management.dao.sharding.DBHashModShardingAlgorithm
-          sharding-count: 2
           strategy: standard
+          tables-per-db: 1
+      # 每库2张表的库路由
+      db_hash_mod_2t:
+        type: CLASS_BASED
+        props:
+          algorithmClassName: com.b2c.cn.management.dao.sharding.DBHashModShardingAlgorithm
+          strategy: standard
+          tables-per-db: 2
+
+      # ---------- 表路由算法（所有逻辑表共享 db-count=2）----------
+      # 每库1张表的表路由
+      table_hash_mod_1t:
+        type: CLASS_BASED
+        props:
+          algorithmClassName: com.b2c.cn.management.dao.sharding.TableHashModShardingAlgorithm
+          strategy: standard
+          db-count: 2
+      # 每库2张表的表路由
+      table_hash_mod_2t:
+        type: CLASS_BASED
+        props:
+          algorithmClassName: com.b2c.cn.management.dao.sharding.TableHashModShardingAlgorithm
+          strategy: standard
+          db-count: 2
+
+      # ---------- 【未来扩展示例】t_user_coupon: 2库 x 每库8张表 = 16个槽位 ----------
+      # ds_0 -> t_user_coupon_0 ~ t_user_coupon_7
+      # ds_1 -> t_user_coupon_8 ~ t_user_coupon_15
+      # 取消以下注释并在 tables 中新增 t_user_coupon 规则块即可
+      # db_hash_mod_8t:
+      #   type: CLASS_BASED
+      #   props:
+      #     algorithmClassName: com.b2c.cn.management.dao.sharding.DBHashModShardingAlgorithm
+      #     strategy: standard
+      #     tables-per-db: 8
+      # table_hash_mod_8t:
+      #   type: CLASS_BASED
+      #   props:
+      #     algorithmClassName: com.b2c.cn.management.dao.sharding.TableHashModShardingAlgorithm
+      #     strategy: standard
+      #     db-count: 2
+
 props:
   sql-show: true
