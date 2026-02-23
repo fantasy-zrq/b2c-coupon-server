@@ -9,7 +9,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
-import org.springframework.core.StandardReflectionParameterNameDiscoverer;
+import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -30,7 +31,7 @@ public class RegularCheckChainFilterAspect {
 
     private final ChainFilterContext chainFilterContext;
     private final ExpressionParser parser = new SpelExpressionParser();
-    private final StandardReflectionParameterNameDiscoverer discoverer = new StandardReflectionParameterNameDiscoverer();
+    private final ParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
     @Around("@annotation(regularCheckChainFilter)")
     public Object ChainFilterVerify(ProceedingJoinPoint joinPoint, RegularCheckChainFilter regularCheckChainFilter) throws Throwable {
         // 1. 获取注解里的 mark
@@ -38,7 +39,8 @@ public class RegularCheckChainFilterAspect {
 
         // 2. 解析 SpEL 拿到真实的 requestParam 对象
         Object[] args = joinPoint.getArgs();
-        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        Method method = methodSignature.getMethod();
         String paramExpression = regularCheckChainFilter.requestParam();
 
         Object requestParam = null;
