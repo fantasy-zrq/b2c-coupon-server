@@ -1,5 +1,15 @@
 server:
   port: 10002
+  tomcat:
+    accept-count: 200
+    # 4. 最大连接数（默认8192）
+    # 决定了系统能同时维持多少个 TCP 连接
+    max-connections: 2000
+    # 5. 连接超时时间
+    connection-timeout: 20000
+    threads:
+      max: 500
+      min-spare: 50
 spring:
   application:
     name: coupon-management-platform

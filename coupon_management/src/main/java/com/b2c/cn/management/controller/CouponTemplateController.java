@@ -4,6 +4,7 @@ import com.b2c.cn.management.dto.req.CouponTemplatePageQueryReqDTO;
 import com.b2c.cn.management.dto.req.CouponTemplateReqDTO;
 import com.b2c.cn.management.dto.resp.CouponTemplatePageQueryRespDTO;
 import com.b2c.cn.management.service.CouponTemplateService;
+import com.b2c.cn.starter.annotation.NoDuplicateSubmit;
 import com.b2c.cn.starter.annotation.RegularCheckChainFilter;
 import com.b2c.cn.starter.result.Result;
 import com.b2c.cn.starter.web.Results;
@@ -27,8 +28,9 @@ public class CouponTemplateController {
     @PostMapping("/create")
     @RegularCheckChainFilter(
             mark = "COUPON_TEMPLATE_CREATE_MASK",
-            requestParam = "#a0"
+            requestParam = "#requestParam"
     )
+    @NoDuplicateSubmit
     public Result<?> create(@RequestBody CouponTemplateReqDTO requestParam) {
         couponTemplateService.create(requestParam);
         return Results.success("优惠券创建成功");
