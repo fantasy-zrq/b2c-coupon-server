@@ -1,7 +1,9 @@
 package com.b2c.cn.management.controller;
 
+import com.b2c.cn.management.dto.req.CouponTemplateIncreaseReqDTO;
 import com.b2c.cn.management.dto.req.CouponTemplatePageQueryReqDTO;
 import com.b2c.cn.management.dto.req.CouponTemplateReqDTO;
+import com.b2c.cn.management.dto.req.CouponTemplateTerminateReqDTO;
 import com.b2c.cn.management.dto.resp.CouponTemplatePageQueryRespDTO;
 import com.b2c.cn.management.service.CouponTemplateService;
 import com.b2c.cn.starter.annotation.NoDuplicateSubmit;
@@ -34,6 +36,18 @@ public class CouponTemplateController {
     public Result<?> create(@RequestBody CouponTemplateReqDTO requestParam) {
         couponTemplateService.create(requestParam);
         return Results.success("优惠券创建成功");
+    }
+
+    @PostMapping("/increase-number")
+    public Result<?> increaseNumber(@RequestBody CouponTemplateIncreaseReqDTO requestParam) {
+        couponTemplateService.increaseNumber(requestParam);
+        return Results.success("优惠券数量增加成功");
+    }
+
+    @PostMapping("/termination")
+    public Result<?> termination(@RequestBody CouponTemplateTerminateReqDTO requestParam) {
+        couponTemplateService.termination(requestParam);
+        return Results.success("优惠券终止成功");
     }
 
     @PostMapping("/page")

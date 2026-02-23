@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.b2c.cn.management.dao.mapper.CouponTemplateMapper">
+
+    <update id="incrementStock">
+        update t_coupon_template
+        set stock = stock + #{requestParam.increaseNum}
+        where id = #{requestParam.id}
+          and shop_number = #{requestParam.shopNumber}
+          and status = 0
+          and del_flag = 0
+    </update>
+</mapper>

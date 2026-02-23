@@ -2,15 +2,22 @@ package com.b2c.cn.management.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.b2c.cn.management.common.constant.RedisStoreConstant;
+import com.b2c.cn.management.common.context.UserMerchantContext;
+import com.b2c.cn.management.common.enums.CouponTemplateDeleteEnum;
+import com.b2c.cn.management.common.enums.CouponTemplateStatusEnum;
 import com.b2c.cn.management.common.mqsendtemplate.RocketMQCouponStatusModifyTemplate;
 import com.b2c.cn.management.dao.entity.CouponTemplateDO;
 import com.b2c.cn.management.dao.mapper.CouponTemplateMapper;
 import com.b2c.cn.management.dto.base.BasePageRespDTO;
+import com.b2c.cn.management.dto.req.CouponTemplateIncreaseReqDTO;
 import com.b2c.cn.management.dto.req.CouponTemplatePageQueryReqDTO;
 import com.b2c.cn.management.dto.req.CouponTemplateReqDTO;
+import com.b2c.cn.management.dto.req.CouponTemplateTerminateReqDTO;
 import com.b2c.cn.management.dto.resp.CouponTemplatePageQueryRespDTO;
 import com.b2c.cn.management.service.CouponTemplateService;
+import com.b2c.cn.starter.exception.ClientException;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -22,6 +29,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +37,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.b2c.cn.management.common.constant.CouponTemplateLogRecordConstant.COUPON_TEMPLATE_CREATE_LOG_CONTENT;
+import static com.b2c.cn.management.common.constant.CouponTemplateLogRecordConstant.*;
 
 /**
  * @author zrq
@@ -55,6 +63,7 @@ public class CouponTemplateServiceImpl extends ServiceImpl<CouponTemplateMapper,
         CouponTemplateDO couponTemplateDO = BeanUtil.toBean(requestParam, CouponTemplateDO.class);
         couponTemplateMapper.insert(couponTemplateDO);
         LogRecordContext.putVariable("bizNo", couponTemplateDO.getId());
+        LogRecordContext.putVariable("operatorName", UserMerchantContext.getUsername());
         Map<String, Object> beanMap = BeanUtil.beanToMap(couponTemplateDO, false, true);
         Map<String, String> stringMap = beanMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         List<String> key = List.of(String.format(RedisStoreConstant.COUPON_TEMPLATE_KEY, couponTemplateDO.getId()));
@@ -94,5 +103,61 @@ public class CouponTemplateServiceImpl extends ServiceImpl<CouponTemplateMapper,
                         .build())
                 .records(pageRes.getRecords())
                 .build();
+    }
+
+    @LogRecord(
+            success = COUPON_TEMPLATE_INCREASE_NUMBER_LOG_CONTENT,
+            type = "CouponTemplate",
+            bizNo = "{{#bizNo}}",
+            extra = "{{#requestParam.toString()}}"
+    )
+    @Override
+    @Transactional(rollbackFor = ClientException.class)
+    public void increaseNumber(CouponTemplateIncreaseReqDTO requestParam) {
+        CouponTemplateDO couponTemplateDO = couponTemplateMapper.selectOne(Wrappers.lambdaQuery(CouponTemplateDO.class)
+                .eq(CouponTemplateDO::getId, requestParam.getId())
+                .eq(CouponTemplateDO::getShopNumber, requestParam.getShopNumber())
+                .eq(CouponTemplateDO::getStatus, CouponTemplateStatusEnum.ACTIVE.getValue())
+                .eq(CouponTemplateDO::getDelFlag, CouponTemplateDeleteEnum.UNDELETED.getValue()));
+        if (couponTemplateDO == null) {
+            throw new ClientException("不存在id为：" + requestParam.getId() + "的优惠券");
+        }
+        LogRecordContext.putVariable("originalData", JSON.toJSONString(couponTemplateDO));
+        Integer couponTemplateStock = couponTemplateMapper.incrementStock(requestParam);
+        if (couponTemplateStock != 1) {
+            throw new ClientException("优惠券id为：" + requestParam.getId() + "的库存增加失败");
+        }
+        String redisKey = String.format(RedisStoreConstant.COUPON_TEMPLATE_KEY, couponTemplateDO.getId());
+        stringRedisTemplate.opsForHash().increment(redisKey, "stock", requestParam.getIncreaseNum());
+        LogRecordContext.putVariable("bizNo", couponTemplateDO.getId());
+        LogRecordContext.putVariable("operatorName", UserMerchantContext.getUsername());
+    }
+
+    @LogRecord(
+            success = COUPON_TEMPLATE_TERMINATE_LOG_CONTENT,
+            type = "CouponTemplate",
+            bizNo = "{{#bizNo}}",
+            extra = "{{#requestParam.toString()}}"
+    )
+    @Override
+    @Transactional(rollbackFor = ClientException.class)
+    public void termination(CouponTemplateTerminateReqDTO requestParam) {
+        CouponTemplateDO couponTemplateDO = couponTemplateMapper.selectOne(Wrappers.lambdaQuery(CouponTemplateDO.class)
+                .eq(CouponTemplateDO::getId, requestParam.getId())
+                .eq(CouponTemplateDO::getShopNumber, requestParam.getShopNumber())
+                .eq(CouponTemplateDO::getStatus, CouponTemplateStatusEnum.ACTIVE.getValue())
+                .eq(CouponTemplateDO::getDelFlag, CouponTemplateDeleteEnum.UNDELETED.getValue()));
+        if (couponTemplateDO == null) {
+            throw new ClientException("不存在id为：" + requestParam.getId() + "的优惠券");
+        }
+        LogRecordContext.putVariable("originalData", JSON.toJSONString(couponTemplateDO));
+        couponTemplateDO.setStatus(CouponTemplateStatusEnum.ENDING.getValue());
+        couponTemplateMapper.update(couponTemplateDO, Wrappers.lambdaUpdate(CouponTemplateDO.class)
+                .eq(CouponTemplateDO::getId, requestParam.getId())
+                .eq(CouponTemplateDO::getShopNumber, requestParam.getShopNumber()));
+        String redisKey = String.format(RedisStoreConstant.COUPON_TEMPLATE_KEY, couponTemplateDO.getId());
+        stringRedisTemplate.opsForHash().put(redisKey, "status", String.valueOf(CouponTemplateStatusEnum.ENDING.getValue()));
+        LogRecordContext.putVariable("bizNo", couponTemplateDO.getId());
+        LogRecordContext.putVariable("operatorName", UserMerchantContext.getUsername());
     }
 }

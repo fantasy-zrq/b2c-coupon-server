@@ -32,7 +32,7 @@ public class LogRecordConfiguration {
      */
     @Bean
     public IOperatorGetService getService() {
-        return () -> new Operator("2025146689697873922");
+        return () -> new Operator("2025754387968270338");
     }
 
     /**

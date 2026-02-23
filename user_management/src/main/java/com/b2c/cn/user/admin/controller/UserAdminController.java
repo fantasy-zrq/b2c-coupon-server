@@ -28,7 +28,7 @@ public class UserAdminController {
 
     @RegularCheckChainFilter(
             mark = "USER_ADMIN_CREATE_MASK",
-            requestParam = "#a0"
+            requestParam = "#requestParam"
     )
     @PostMapping("/create")
     public Result<?> create(@RequestBody UserAdminCreateReqDTO requestParam) {

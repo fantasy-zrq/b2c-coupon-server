@@ -32,7 +32,7 @@ public class CouponTemplateDO {
     private String name;
 
     /**
-     * 店铺编号
+     * 店铺编号,平台管理的shopNumber是0,商家是店铺编号
      */
     private Long shopNumber;
 
