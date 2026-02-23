@@ -5,21 +5,21 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import java.util.Optional;
 
 /**
- * 用户登录信息存储上下文
+ * 用户登录信息存储上下文商家
  */
-public final class UserContext {
+public final class UserMerchantContext {
 
     /**
      * <a href="https://github.com/alibaba/transmittable-thread-local" />
      */
-    private static final ThreadLocal<UserInfoDTO> USER_THREAD_LOCAL = new TransmittableThreadLocal<>();
+    private static final ThreadLocal<UserMerchantInfoDTO> USER_THREAD_LOCAL = new TransmittableThreadLocal<>();
 
     /**
      * 设置用户至上下文
      *
      * @param user 用户详情信息
      */
-    public static void setUser(UserInfoDTO user) {
+    public static void setUser(UserMerchantInfoDTO user) {
         USER_THREAD_LOCAL.set(user);
     }
 
@@ -29,8 +29,8 @@ public final class UserContext {
      * @return 用户 ID
      */
     public static String getUserId() {
-        UserInfoDTO userInfoDTO = USER_THREAD_LOCAL.get();
-        return Optional.ofNullable(userInfoDTO).map(UserInfoDTO::getUserId).orElse(null);
+        UserMerchantInfoDTO userMerchantInfoDTO = USER_THREAD_LOCAL.get();
+        return Optional.ofNullable(userMerchantInfoDTO).map(UserMerchantInfoDTO::getUserId).orElse(null);
     }
 
     /**
@@ -39,8 +39,8 @@ public final class UserContext {
      * @return 用户名称
      */
     public static String getUsername() {
-        UserInfoDTO userInfoDTO = USER_THREAD_LOCAL.get();
-        return Optional.ofNullable(userInfoDTO).map(UserInfoDTO::getUsername).orElse(null);
+        UserMerchantInfoDTO userMerchantInfoDTO = USER_THREAD_LOCAL.get();
+        return Optional.ofNullable(userMerchantInfoDTO).map(UserMerchantInfoDTO::getUsername).orElse(null);
     }
 
     /**
@@ -49,8 +49,8 @@ public final class UserContext {
      * @return 用户店铺编号
      */
     public static Long getShopNumber() {
-        UserInfoDTO userInfoDTO = USER_THREAD_LOCAL.get();
-        return Optional.ofNullable(userInfoDTO).map(UserInfoDTO::getShopNumber).orElse(null);
+        UserMerchantInfoDTO userMerchantInfoDTO = USER_THREAD_LOCAL.get();
+        return Optional.ofNullable(userMerchantInfoDTO).map(UserMerchantInfoDTO::getShopNumber).orElse(null);
     }
 
     /**

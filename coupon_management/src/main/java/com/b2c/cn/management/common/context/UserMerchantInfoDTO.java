@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserInfoDTO {
+public class UserMerchantInfoDTO {
 
     /**
-     * 用户 ID
+     * 商家 ID
      */
     private String userId;
 

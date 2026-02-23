@@ -12,6 +12,7 @@
         <module>coupon_management</module>
         <module>framework_spring_boot_starter</module>
         <module>coupon_distribution</module>
+        <module>user_management</module>
     </modules>
 
     <properties>
@@ -38,6 +39,8 @@
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
         <mysql.version>8.0.33</mysql.version>
         <druid.version>1.2.23</druid.version>
+        <sa-token.version>1.39.0</sa-token.version>
+        <rustfs.version>2.30.36</rustfs.version>
         <!--        <elasticsearch-spring-boot-starter.version>2.6.12</elasticsearch-spring-boot-starter.version>-->
     </properties>
 
@@ -104,7 +107,20 @@
                 <version>${shardingsphere.version}</version>
             </dependency>
 
-<!--            <dependency>-->
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-spring-boot3-starter</artifactId>
+                <version>${sa-token.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
+                <version>${rustfs.version}</version>
+            </dependency>
+
+
+            <!--            <dependency>-->
 <!--                <groupId>org.yaml</groupId>-->
 <!--                <artifactId>snakeyaml</artifactId>-->
 <!--                <version>${snakeyaml.version}</version>-->

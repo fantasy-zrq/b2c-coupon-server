@@ -18,7 +18,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
         <!-- SpringBoot 单元测试相关依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -61,6 +60,11 @@
         <dependency>
             <groupId>org.apache.shardingsphere</groupId>
             <artifactId>shardingsphere-jdbc-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-spring-boot3-starter</artifactId>
         </dependency>
 
         <!-- 接口文档相关依赖 -->

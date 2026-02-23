@@ -14,6 +14,8 @@ import com.b2c.cn.management.service.CouponTemplateService;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mzt.logapi.context.LogRecordContext;
+import com.mzt.logapi.starter.annotation.LogRecord;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBloomFilter;
 import org.springframework.core.io.ClassPathResource;
@@ -26,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static com.b2c.cn.management.common.constant.CouponTemplateLogRecordConstant.COUPON_TEMPLATE_CREATE_LOG_CONTENT;
 
 /**
  * @author zrq
@@ -40,10 +44,17 @@ public class CouponTemplateServiceImpl extends ServiceImpl<CouponTemplateMapper,
     private final RBloomFilter<String> couponTemplateQueryBloomFilter;
     private final RocketMQCouponStatusModifyTemplate rocketMQCouponStatusModifyTemplate;
 
+    @LogRecord(
+            success = COUPON_TEMPLATE_CREATE_LOG_CONTENT,
+            type = "CouponTemplate",
+            bizNo = "{{#bizNo}}",
+            extra = "{{#requestParam.toString()}}"
+    )
     @Override
     public void create(CouponTemplateReqDTO requestParam) {
         CouponTemplateDO couponTemplateDO = BeanUtil.toBean(requestParam, CouponTemplateDO.class);
         couponTemplateMapper.insert(couponTemplateDO);
+        LogRecordContext.putVariable("bizNo", couponTemplateDO.getId());
         Map<String, Object> beanMap = BeanUtil.beanToMap(couponTemplateDO, false, true);
         Map<String, String> stringMap = beanMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         List<String> key = List.of(String.format(RedisStoreConstant.COUPON_TEMPLATE_KEY, couponTemplateDO.getId()));
