@@ -35,7 +35,6 @@ public abstract class RocketMQMessageSendAbstractTemplate<T> {
                 rocketMQTemplate.syncSend(destination, message);
                 log.info("即时消息发送成功：{}", message);
             } else {
-                                //syncSendDeliverTimeMills
                 rocketMQTemplate.syncSendDeliverTimeMills(destination, message, msgExt.getDelayTime());
                 log.info("定时投递消息发送成功：{}", message);
             }
