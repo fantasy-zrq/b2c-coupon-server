@@ -40,3 +40,10 @@ rocketmq:
     send-message-timeout: 2000
     retry-times-when-send-failed: 1
     retry-times-when-send-async-failed: 1
+rustfs:
+  endpoint: http://fantasyz.top:31001
+  accessKey: rustfsadmin
+  secretKey: rustfsadmin123
+  ##us-east-1\b2c-coupon-platform
+  region: b2c-coupon-platform
+  bucket: coupon-task-file-bucket

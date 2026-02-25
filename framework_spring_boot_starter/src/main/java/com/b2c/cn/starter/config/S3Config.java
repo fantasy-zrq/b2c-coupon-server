@@ -1,8 +1,7 @@
-package com.b2c.cn.user.admin.config;
+package com.b2c.cn.starter.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -14,7 +13,6 @@ import java.net.URI;
  * @author zrq
  * 2026/2/22 10:03
  */
-@Configuration
 public class S3Config {
     @Value("${rustfs.endpoint}")
     private String endpoint;

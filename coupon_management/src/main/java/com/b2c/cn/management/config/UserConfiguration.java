@@ -39,7 +39,7 @@ public class UserConfiguration implements WebMvcConfigurer {
         @Override
         public boolean preHandle(@Nullable HttpServletRequest request, @Nullable HttpServletResponse response, @Nullable Object handler) throws Exception {
             // 用户属于非核心功能，这里先通过模拟的形式代替。后续如果需要后管展示，会重构该代码
-            UserMerchantInfoDTO userMerchantInfoDTO = new UserMerchantInfoDTO("2025754387968270338", "mark", 1606111L);
+            UserMerchantInfoDTO userMerchantInfoDTO = new UserMerchantInfoDTO(2025754387968270338L, "mark", 1606111L);
             UserMerchantContext.setUser(userMerchantInfoDTO);
             return true;
         }

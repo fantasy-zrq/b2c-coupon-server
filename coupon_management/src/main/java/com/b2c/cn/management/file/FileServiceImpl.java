@@ -1,9 +1,8 @@
-package com.b2c.cn.user.admin.file;
+package com.b2c.cn.management.file;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.UUID;
+import com.b2c.cn.management.common.constant.CouponTaskRustFsConstant;
 import com.b2c.cn.starter.file.FileService;
-import com.b2c.cn.user.admin.common.utils.TimeFormatUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,8 +14,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import static com.b2c.cn.user.admin.common.constant.UserAdminRustFsConstant.RUSTFSIMAGEKEY;
+import java.util.UUID;
 
 /**
  * @author zrq
@@ -34,8 +32,12 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String upload(MultipartFile file) throws IOException {
-        String rustFsKey = String.format(RUSTFSIMAGEKEY, UUID.randomUUID(),
-                TimeFormatUtil.format(DateUtil.current()), file.getOriginalFilename());
+        String filename = file.getOriginalFilename();
+        String rustFsKey = String.format(
+                CouponTaskRustFsConstant.RUSTFSFILEKEY,
+                UUID.randomUUID(),
+                DateUtil.format(DateUtil.date(DateUtil.current()), "yyyy-MM-dd-HH:mm:ss"), filename
+        );
 
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(bucket)

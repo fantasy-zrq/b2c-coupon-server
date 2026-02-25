@@ -1,3 +1,4 @@
 com.b2c.cn.starter.config.RegularCheckChainFilterConfiguration
 com.b2c.cn.starter.config.WebAutoConfiguration
 com.b2c.cn.starter.config.NoDuplicateSubmitConfiguration
+com.b2c.cn.starter.config.S3Config

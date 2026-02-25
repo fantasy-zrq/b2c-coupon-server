@@ -28,7 +28,7 @@ public final class UserMerchantContext {
      *
      * @return 用户 ID
      */
-    public static String getUserId() {
+    public static Long getUserId() {
         UserMerchantInfoDTO userMerchantInfoDTO = USER_THREAD_LOCAL.get();
         return Optional.ofNullable(userMerchantInfoDTO).map(UserMerchantInfoDTO::getUserId).orElse(null);
     }

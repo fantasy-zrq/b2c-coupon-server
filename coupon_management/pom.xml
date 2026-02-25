@@ -67,17 +67,9 @@
             <artifactId>sa-token-spring-boot3-starter</artifactId>
         </dependency>
 
-        <!-- 接口文档相关依赖 -->
         <dependency>
-            <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
-        </dependency>
-
-        <!-- Mock 数据相关依赖 -->
-        <dependency>
-            <groupId>com.github.javafaker</groupId>
-            <artifactId>javafaker</artifactId>
-            <scope>test</scope>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
         </dependency>
 
         <!-- 定时任务相关依赖 -->

@@ -17,7 +17,7 @@ public class UserMerchantInfoDTO {
     /**
      * 商家 ID
      */
-    private String userId;
+    private Long userId;
 
     /**
      * 用户名
