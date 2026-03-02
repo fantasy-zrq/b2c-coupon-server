@@ -1,0 +1,35 @@
+server:
+  port: 10004
+  tomcat:
+    accept-count: 200
+    # 4. 最大连接数（默认8192）
+    # 决定了系统能同时维持多少个 TCP 连接
+    max-connections: 2000
+    # 5. 连接超时时间
+    connection-timeout: 20000
+    threads:
+      max: 500
+      min-spare: 50
+spring:
+  application:
+    name: coupon-template-distribution
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 1024MB
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:classpath:sharding-config.yaml
+  data:
+    redis:
+      lettuce:
+        pool:
+          max-idle: 10
+          max-active: 20
+          min-idle: 5
+          max-wait: 1000ms
+      host: fantasyz.top
+      port: 16379
