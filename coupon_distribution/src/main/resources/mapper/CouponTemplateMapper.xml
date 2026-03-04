@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.b2c.cn.distribution.dao.mapper.CouponTemplateMapper">
+
+    <update id="decrementDBStock">
+        update t_coupon_template
+        set stock = stock - #{batchUserSetSize}
+        where id = #{couponTemplateId}
+          and shop_number = #{shopNumber}
+          and stock >= #{batchUserSetSize}
+    </update>
+    <update id="incrementCouponTemplateStock">
+        update t_coupon_template
+        set stock = stock + #{diff}
+        where id = #{couponTemplateId}
+          and shop_number = #{shopNumber}
+    </update>
+</mapper>

@@ -1,8 +1,8 @@
 package com.b2c.cn.distribution.config;
 
 
-import com.b2c.cn.distribution.common.context.UserMerchantContext;
-import com.b2c.cn.distribution.common.context.UserMerchantInfoDTO;
+import com.b2c.cn.distribution.common.context.UserContext;
+import com.b2c.cn.distribution.common.context.UserInfoDTO;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,14 +40,14 @@ public class UserConfiguration implements WebMvcConfigurer {
         @Override
         public boolean preHandle(@Nullable HttpServletRequest request, @Nullable HttpServletResponse response, @Nullable Object handler) throws Exception {
             // 用户属于非核心功能，这里先通过模拟的形式代替。后续如果需要后管展示，会重构该代码
-            UserMerchantInfoDTO userMerchantInfoDTO = new UserMerchantInfoDTO(2025754387968270338L, "mark", 1606111L);
-            UserMerchantContext.setUser(userMerchantInfoDTO);
+            UserInfoDTO userInfoDTO = new UserInfoDTO(2025754387968270338L, "mark");
+            UserContext.setUser(userInfoDTO);
             return true;
         }
 
         @Override
         public void afterCompletion(@Nullable HttpServletRequest request, @Nullable HttpServletResponse response, @Nullable Object handler, Exception exception) throws Exception {
-            UserMerchantContext.removeUser();
+            UserContext.removeUser();
         }
     }
 }

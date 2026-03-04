@@ -6,16 +6,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 登录用户信息实体
+ * 用户信息实体
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserMerchantInfoDTO {
+public class UserInfoDTO {
 
     /**
-     * 商家 ID
+     * 用户 ID
      */
     private Long userId;
 
@@ -23,9 +23,4 @@ public class UserMerchantInfoDTO {
      * 用户名
      */
     private String username;
-
-    /**
-     * 店铺编号
-     */
-    private Long shopNumber;
 }

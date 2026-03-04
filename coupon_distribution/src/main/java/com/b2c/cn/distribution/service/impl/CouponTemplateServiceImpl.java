@@ -3,7 +3,7 @@ package com.b2c.cn.distribution.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
-import com.b2c.cn.distribution.common.context.UserMerchantContext;
+import com.b2c.cn.distribution.common.context.UserContext;
 import com.b2c.cn.distribution.dao.entity.CouponTemplateDO;
 import com.b2c.cn.distribution.dao.mapper.CouponTemplateMapper;
 import com.b2c.cn.distribution.dto.req.CouponTemplateQueryReqDTO;
@@ -58,7 +58,7 @@ public class CouponTemplateServiceImpl extends ServiceImpl<CouponTemplateMapper,
         }
         //获取10段分段锁
         String lockKey = String.format(COUPON_TEMPLATE_QUERY_KEY,
-                requestParam.getCouponTemplateId() + UserMerchantContext.getUserId() % 10);
+                requestParam.getCouponTemplateId() + UserContext.getUserId() % 10);
         RLock lock = redissonClient.getLock(lockKey);
         lock.lock();
         try {

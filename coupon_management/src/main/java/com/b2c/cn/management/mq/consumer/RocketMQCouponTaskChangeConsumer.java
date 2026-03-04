@@ -16,7 +16,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author zrq
- * 2026/2/15 16:41
+ * 2026/3/3 14:17
+ * 只做优惠券任务发送数量确认，不涉及优惠券发放
  */
 @RocketMQMessageListener(
         topic = RocketMQStoreConstant.COUPON_TEMPLATE_TOPIC,

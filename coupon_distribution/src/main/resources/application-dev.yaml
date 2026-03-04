@@ -33,3 +33,17 @@ spring:
           max-wait: 1000ms
       host: fantasyz.top
       port: 16379
+rocketmq:
+  name-server: common-rocketmq-dev.magestack.cn:9876
+  producer:
+    group: b2c-coupon-system_coupon-distribution-producer-group
+    send-message-timeout: 2000
+    retry-times-when-send-failed: 1
+    retry-times-when-send-async-failed: 1
+rustfs:
+  endpoint: http://fantasyz.top:31001
+  accessKey: rustfsadmin
+  secretKey: rustfsadmin123
+  ##us-east-1\b2c-coupon-platform
+  region: b2c-coupon-platform
+  bucket: coupon-task-file-bucket

@@ -1,6 +1,5 @@
 package com.b2c.cn.management.service.impl;
 
-import cn.hutool.core.date.DateUtil;
 import com.alibaba.excel.EasyExcel;
 import com.b2c.cn.management.common.context.UserMerchantContext;
 import com.b2c.cn.management.common.enums.CouponTaskStatusEnum;
@@ -26,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author zrq
- * 2026/2/24 13:37
+ * 2026/3/3 14:17
  */
 @Service
 @Slf4j(topic = "CouponTaskServiceImpl")
@@ -81,7 +81,11 @@ public class CouponTaskServiceImpl extends ServiceImpl<CouponTaskMapper, CouponT
                 .fileName(file.getOriginalFilename())
                 .fileOss(ossKey)
                 .sendNum(0)//等到优惠券发放数量后更新
-                .status(CouponTaskStatusEnum.IN_PROGRESS.getValue())
+                //0:立即发放,1:定时发放
+                .status(Objects.equals(requestParam.getSendType(), 0) ?
+                        CouponTaskStatusEnum.IN_PROGRESS.getValue() :
+                        CouponTaskStatusEnum.PENDING.getValue()
+                )
                 .notifyType(requestParam.getNotifyType())
                 .sendType(requestParam.getSendType())
                 .sendTime(requestParam.getSendTime())
@@ -103,11 +107,12 @@ public class CouponTaskServiceImpl extends ServiceImpl<CouponTaskMapper, CouponT
     public void generateCouponTaskSendNum(Long couponTaskId, InputStream inputStream) {
         RowCountListener listener = new RowCountListener();
         EasyExcel.read(inputStream, listener).sheet().doRead();
+        //这里只更新发放数量，不更新状态和完成时间
         couponTaskMapper.update(
                 CouponTaskDO.builder()
                         .sendNum(listener.getRowCount())
-                        .status(CouponTaskStatusEnum.SUCCESS.getValue())
-                        .completionTime(DateUtil.date())
+                        //.status(CouponTaskStatusEnum.SUCCESS.getValue())
+                        //.completionTime(DateUtil.date())
                         .build(),
                 Wrappers.lambdaQuery(CouponTaskDO.class)
                         .eq(CouponTaskDO::getId, couponTaskId)
