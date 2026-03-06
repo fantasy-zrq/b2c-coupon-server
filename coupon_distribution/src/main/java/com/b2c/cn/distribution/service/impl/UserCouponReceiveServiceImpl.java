@@ -10,7 +10,6 @@ import com.alibaba.fastjson2.JSONObject;
 import com.b2c.cn.distribution.common.constant.RedisStoreConstant;
 import com.b2c.cn.distribution.common.context.UserContext;
 import com.b2c.cn.distribution.common.enums.RedisStockDecrementEnum;
-import com.b2c.cn.distribution.mq.producer.RocketMQUserCouponExpireTemplate;
 import com.b2c.cn.distribution.common.mqsendtemplate.UserCouponExpireCancelEvent;
 import com.b2c.cn.distribution.dao.entity.UserCouponReceiveDO;
 import com.b2c.cn.distribution.dao.mapper.CouponTemplateMapper;
@@ -18,6 +17,7 @@ import com.b2c.cn.distribution.dao.mapper.UserCouponReceiveMapper;
 import com.b2c.cn.distribution.dto.req.CouponTemplateQueryReqDTO;
 import com.b2c.cn.distribution.dto.req.CouponTemplateRedeemReqDTO;
 import com.b2c.cn.distribution.dto.resp.CouponTemplateQueryRespDTO;
+import com.b2c.cn.distribution.mq.producer.RocketMQUserCouponExpireTemplate;
 import com.b2c.cn.distribution.service.CouponTemplateService;
 import com.b2c.cn.distribution.service.UserCouponReceiveService;
 import com.b2c.cn.distribution.utils.UserRedeemStockDecrementReturnCombinedUtil;
@@ -26,6 +26,7 @@ import com.b2c.cn.starter.exception.ServiceException;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -55,6 +56,9 @@ public class UserCouponReceiveServiceImpl extends ServiceImpl<UserCouponReceiveM
     private final TransactionTemplate transactionTemplate;
     private final RocketMQUserCouponExpireTemplate rocketMQUserCouponExpireTemplate;
     private static final String STOCK_DECREMENT_AND_SAVE_USER_RECEIVE_LUA_PATH = "lua/stock_decrement_and_save_user_receive.lua";
+
+    @Value("${coupon.save.type}")
+    private String saveType;
 
     @Override
     public void redeemUserCoupon(CouponTemplateRedeemReqDTO requestParam) {
@@ -93,7 +97,6 @@ public class UserCouponReceiveServiceImpl extends ServiceImpl<UserCouponReceiveM
             try {
                 //借用这个批量的方法扣减库存
                 couponTemplateMapper.decrementDBStock(couponTemplateQueryRespDTO.getId(), 1, couponTemplateQueryRespDTO.getShopNumber());
-
                 Date now = new Date();
                 DateTime validEndTime = DateUtil.offsetHour(now, JSON.parseObject(couponTemplateQueryRespDTO.getConsumeRule()).getInteger("validityPeriod"));
                 UserCouponReceiveDO userCouponReceiveDO = UserCouponReceiveDO.builder()
@@ -107,33 +110,36 @@ public class UserCouponReceiveServiceImpl extends ServiceImpl<UserCouponReceiveM
                         .status(couponTemplateQueryRespDTO.getStatus())
                         .build();
                 userCouponReceiveMapper.insert(userCouponReceiveDO);
-                String receiveLimitKey = String.format(COUPON_USER_RECEIVE_LIST_KEY, UserContext.getUserId());
-                String userCouponItemCacheKey = StrUtil.builder()
-                        .append(requestParam.getCouponTemplateId())
-                        .append("_")
-                        .append(userCouponReceiveDO.getId())
-                        .toString();
-                stringRedisTemplate.opsForZSet().add(receiveLimitKey, userCouponItemCacheKey, now.getTime());
-                Double score;
-                try {
-                    score = stringRedisTemplate.opsForZSet().score(receiveLimitKey, userCouponItemCacheKey);
-                    if (score == null) {
-                        log.error("redis丢指令了");
+
+                if (saveType.equals("direct")) {
+                    String receiveLimitKey = String.format(COUPON_USER_RECEIVE_LIST_KEY, UserContext.getUserId());
+                    String userCouponItemCacheKey = StrUtil.builder()
+                            .append(requestParam.getCouponTemplateId())
+                            .append("_")
+                            .append(userCouponReceiveDO.getId())
+                            .toString();
+                    stringRedisTemplate.opsForZSet().add(receiveLimitKey, userCouponItemCacheKey, now.getTime());
+                    Double score;
+                    try {
+                        score = stringRedisTemplate.opsForZSet().score(receiveLimitKey, userCouponItemCacheKey);
+                        if (score == null) {
+                            log.error("redis丢指令了");
+                            stringRedisTemplate.opsForZSet().add(receiveLimitKey, userCouponItemCacheKey, now.getTime());
+                        }
+                    } catch (Exception e) {
+                        log.warn("查询Redis用户优惠券记录为空或抛异常，可能Redis宕机或主从复制数据丢失，基础错误信息：{}", e.getCause().getMessage());
+                        // 如果直接抛异常大概率 Redis 宕机了，所以应该写个延时队列向 Redis 重试放入值。为了避免代码复杂性，这里直接写新增，大家知道最优解决方案即可
                         stringRedisTemplate.opsForZSet().add(receiveLimitKey, userCouponItemCacheKey, now.getTime());
                     }
-                } catch (Exception e) {
-                    log.warn("查询Redis用户优惠券记录为空或抛异常，可能Redis宕机或主从复制数据丢失，基础错误信息：{}", e.getCause().getMessage());
-                    // 如果直接抛异常大概率 Redis 宕机了，所以应该写个延时队列向 Redis 重试放入值。为了避免代码复杂性，这里直接写新增，大家知道最优解决方案即可
-                    stringRedisTemplate.opsForZSet().add(receiveLimitKey, userCouponItemCacheKey, now.getTime());
+                    //优惠券有效期过了，发送延迟消息
+                    UserCouponExpireCancelEvent userCouponExpireCancelEvent = UserCouponExpireCancelEvent.builder()
+                            .couponTemplateId(couponTemplateQueryRespDTO.getId())
+                            .userCouponReceiveId(userCouponReceiveDO.getId())
+                            .userId(userCouponReceiveDO.getUserId())
+                            .delayTime(validEndTime.getTime())
+                            .build();
+                    rocketMQUserCouponExpireTemplate.sendMessage(userCouponExpireCancelEvent);
                 }
-                //优惠券有效期过了，发送延迟消息
-                UserCouponExpireCancelEvent userCouponExpireCancelEvent = UserCouponExpireCancelEvent.builder()
-                        .couponTemplateId(couponTemplateQueryRespDTO.getId())
-                        .userCouponReceiveId(userCouponReceiveDO.getId())
-                        .userId(userCouponReceiveDO.getUserId())
-                        .delayTime(validEndTime.getTime())
-                        .build();
-                rocketMQUserCouponExpireTemplate.sendMessage(userCouponExpireCancelEvent);
             } catch (Exception ex) {
                 status.setRollbackOnly();
                 // 优惠券已被领取完业务异常

@@ -47,3 +47,6 @@ rustfs:
   ##us-east-1\b2c-coupon-platform
   region: b2c-coupon-platform
   bucket: coupon-task-file-bucket
+coupon:
+  save:
+    type: canal

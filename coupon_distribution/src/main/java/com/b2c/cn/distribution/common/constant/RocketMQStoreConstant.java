@@ -7,10 +7,11 @@ package com.b2c.cn.distribution.common.constant;
 public class RocketMQStoreConstant {
     //================TOPIC===================
     public static final String COUPON_TEMPLATE_TOPIC = "b2c-system-coupon_coupon-management-topic";
-
+    public static final String COUPON_USER_CANAL_TOPIC = "b2c-system-coupon_canal_listener_topic";
     //================CONSUMER-GROUP===================
     public static final String COUPON_TEMPLATE_STATUS_CHANGE_CONSUMER_GROUP = "b2c-system-coupon_coupon_template_status_change_consumer_group";
     public static final String COUPON_TASK_CHANGE_CONSUMER_GROUP = "b2c-system-coupon_coupon_task_change_consumer_group";
     public static final String COUPON_TASK_DISTRIBUTION_CONSUMER_GROUP = "b2c-system-coupon_coupon_task_distribution_consumer_group";
     public static final String COUPON_USER_COUPON_EXPIRE_GROUP = "b2c-system-coupon_user_coupon_expire_consumer_group";
+    public static final String COUPON_USER_CANAL_CONSUMER_GROUP = "b2c-system-coupon_user_coupon_expire_consumer_group";
 }
