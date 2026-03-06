@@ -1,5 +1,8 @@
-package com.b2c.cn.distribution.common.mqsendtemplate;
+package com.b2c.cn.distribution.mq.producer;
 
+import com.b2c.cn.distribution.common.mqsendtemplate.CouponTemplateDistributionEvent;
+import com.b2c.cn.distribution.common.mqsendtemplate.RocketMQMessageExtension;
+import com.b2c.cn.distribution.common.mqsendtemplate.RocketMQMessageSendAbstractTemplate;
 import org.apache.rocketmq.common.message.MessageConst;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.messaging.support.MessageBuilder;
@@ -12,7 +15,7 @@ import static com.b2c.cn.distribution.common.constant.RocketMQStoreConstant.COUP
  * 2026/3/3 14:31
  */
 @Component
-public class RocketMQCouponTaskDistributionTemplate extends RocketMQMessageSendAbstractTemplate<CouponTemplateDistributionEvent>{
+public class RocketMQCouponTaskDistributionTemplate extends RocketMQMessageSendAbstractTemplate<CouponTemplateDistributionEvent> {
 
     public RocketMQCouponTaskDistributionTemplate(RocketMQTemplate rocketMQTemplate) {
         super(rocketMQTemplate);

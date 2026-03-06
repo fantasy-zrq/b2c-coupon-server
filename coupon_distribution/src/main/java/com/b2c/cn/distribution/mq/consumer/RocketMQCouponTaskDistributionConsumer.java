@@ -7,7 +7,7 @@ import com.b2c.cn.distribution.common.constant.RocketMQStoreConstant;
 import com.b2c.cn.distribution.common.enums.CouponTaskStatusEnum;
 import com.b2c.cn.distribution.common.enums.CouponTemplateDeleteEnum;
 import com.b2c.cn.distribution.common.enums.CouponTemplateStatusEnum;
-import com.b2c.cn.distribution.common.mqsendtemplate.RocketMQCouponTaskDistributionTemplate;
+import com.b2c.cn.distribution.mq.producer.RocketMQCouponTaskDistributionTemplate;
 import com.b2c.cn.distribution.dao.entity.CouponTaskDO;
 import com.b2c.cn.distribution.dao.entity.CouponTemplateDO;
 import com.b2c.cn.distribution.dao.mapper.CouponTaskFailMapper;

@@ -9,7 +9,7 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.fastjson.JSON;
 import com.b2c.cn.distribution.common.constant.RedisStoreConstant;
 import com.b2c.cn.distribution.common.mqsendtemplate.CouponTemplateDistributionEvent;
-import com.b2c.cn.distribution.common.mqsendtemplate.RocketMQCouponTaskDistributionTemplate;
+import com.b2c.cn.distribution.mq.producer.RocketMQCouponTaskDistributionTemplate;
 import com.b2c.cn.distribution.dao.entity.CouponTaskDO;
 import com.b2c.cn.distribution.dao.entity.CouponTaskFailDO;
 import com.b2c.cn.distribution.dao.entity.CouponTemplateDO;
